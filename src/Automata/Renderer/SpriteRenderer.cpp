@@ -21,7 +21,7 @@ namespace Automata
 		m_Shader.setMat4("model", model);
 		m_Shader.setVec3("spriteColor", color);
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, indices);
 		glBindVertexArray(0);
 	}
 
@@ -33,23 +33,24 @@ namespace Automata
 	void SpriteRenderer::InitRenderData()
 	{
 		// configure VAO/VBO
-		unsigned int VBO;
+		unsigned int VBO, EBO;
 		float vertices[] = {
 		// pos		// tex
 		0.0f, 1.0f, 0.0f, 1.0f,
 		1.0f, 0.0f, 1.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, 1.0f,
 		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 0.0f, 1.0f, 0.0f
 		};
+
 
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
+		glGenBuffers(1, &EBO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 		glBindVertexArray(VAO);
 		glEnableVertexAttribArray(0);

@@ -24,6 +24,10 @@ namespace Automata
         Vector2 m_Resolution;
 
         void InitRenderData();
+
+		unsigned int indices[6]{
+			0,1,2,0,3,1
+		};
     };
 }
 
