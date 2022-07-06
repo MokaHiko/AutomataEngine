@@ -82,7 +82,7 @@ namespace Automata
 		deltaTime = 0;
 
 		// Init Renderer
-		automataShader = new Shader("resources/shaders/automata_vertex.shader", "resources/shaders/automata_fragment.shader");
+		automataShader = new Shader("resources/shaders/automata_instanced_vertex.shader", "resources/shaders/automata_instanced_fragment.shader");
 		m_Renderer = new SpriteRenderer(*automataShader, Vector2(RESOLUTION_X, RESOLUTION_Y));
 
 		// Init Cell Matrix

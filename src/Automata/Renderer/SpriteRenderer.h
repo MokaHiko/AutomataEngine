@@ -14,15 +14,16 @@ namespace Automata
         SpriteRenderer(Shader& shader, Vector2 resolution);
         ~SpriteRenderer();
 
-        void DrawSprite(Vector2 position, 
+        void DrawSprite(Matrix4* positionMatrices, 
                         Vector2 size = Vector2(1.0f, 1.0f), 
-                        Vector3 color = Vector3(1.0f));
+                        Vector3 color = Vector3(1.0f),
+                        unsigned int n_instances = 0);
     private:
         Shader m_Shader;
         unsigned int VAO;
+		unsigned int positionsBuffer;
 
         Vector2 m_Resolution;
-
         void InitRenderData();
 
 		unsigned int indices[6]{
