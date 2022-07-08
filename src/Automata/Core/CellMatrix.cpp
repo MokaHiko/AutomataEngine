@@ -3,15 +3,13 @@
 namespace Automata
 {
 	CellMatrix::CellMatrix() {}
-    Matrix4* m_ElementsPositions;
+
+    Shader* automataShader; // Main Engine Automata Shader
 
 	void CellMatrix::InitMatrix(Vector2 dimensions)
 	{
 		// Save Matrix Dimensions
 		m_Dimensions = dimensions;
-
-		// Initialize Positions Array To Send To Renderer
-		m_ElementsPositions = new Matrix4[dimensions.x * dimensions.y];
 
 		// Initialize Empty Cell Matrix
 		for(unsigned int column = 0; column < dimensions.x; column++)
@@ -23,27 +21,32 @@ namespace Automata
 			}
 			m_Cells.push_back(colCells);
 		}
+
+		// Init Renderer
+		automataShader = new Shader("resources/shaders/automata_instanced_vertex.shader", "resources/shaders/automata_instanced_fragment.shader");
+		m_Renderer = new AutomataRenderer(*automataShader, Vector2(dimensions.x, dimensions.y));
 	}
 
 	void CellMatrix::Update(float deltaTime)
 	{
 		// Update Each Active Element
-		Matrix4 model(1.0f);
 		for(unsigned int i = 0; i < m_Elements.size(); i++)
 		{
 			m_Elements[i]->Step();
-			m_ElementsPositions[i] = MatrixTranslate(model, Vector3(m_Elements[i]->m_Position, 0.0));
+			if (m_Elements[i]->m_isUpdated)
+				m_Renderer->UpdateInstance(i, m_Elements[i]->m_Position, m_Elements[i]->m_Color);
 		}
 	}
 
-
-    void CellMatrix::DrawElements(SpriteRenderer* renderer)
+    void CellMatrix::DrawElements()
 	{
-		renderer->DrawSprite(m_ElementsPositions, Vector2(1.0f), Vector3(0.4, 0.1, 0.2), m_Elements.size());
+		m_Renderer->DrawSprites();
 	}
+
 	CellMatrix::~CellMatrix()
 	{
-		delete m_ElementsPositions;
+		delete automataShader;
+		delete m_Renderer;
 	}
 	
 }

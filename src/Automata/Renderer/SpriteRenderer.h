@@ -14,7 +14,7 @@ namespace Automata
         SpriteRenderer(Shader& shader, Vector2 resolution);
         ~SpriteRenderer();
 
-        void DrawSprite(Matrix4* positionMatrices, 
+        void DrawSprite(Vector2* coordinates, 
                         Vector2 size = Vector2(1.0f, 1.0f), 
                         Vector3 color = Vector3(1.0f),
                         unsigned int n_instances = 0);

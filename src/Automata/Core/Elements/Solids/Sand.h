@@ -15,9 +15,6 @@ namespace Automata
         ~Sand();
 
     	void Step() override;
-    private:
-        Vector2 Gravity(Vector2 desiredCoordinate);
-	    Vector2 Roll(Vector2 desiredCoordinate);
     };
 }
 

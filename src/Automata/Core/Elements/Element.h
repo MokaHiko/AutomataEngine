@@ -23,6 +23,8 @@ namespace Automata
         bool m_isUpdated;
     protected:
         std::vector<std::vector<Cell>>& m_MatrixCells;
+	    Vector2 Gravity(Vector2 desiredCoordinate);
+	    Vector2 Roll(Vector2 desiredCoordinate);
     };
 }
 

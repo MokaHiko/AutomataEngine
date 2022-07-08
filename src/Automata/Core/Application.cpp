@@ -8,8 +8,6 @@ namespace Automata
 	float Application::totalTime;
 	float Application::fps;
 
-    Shader* automataShader; // Main Program Shader
-
 	// inputs
 	bool Application::Keys[1024];
 	Vector2 Application::MousePos;
@@ -81,10 +79,6 @@ namespace Automata
 		lastTime = t;
 		deltaTime = 0;
 
-		// Init Renderer
-		automataShader = new Shader("resources/shaders/automata_instanced_vertex.shader", "resources/shaders/automata_instanced_fragment.shader");
-		m_Renderer = new SpriteRenderer(*automataShader, Vector2(RESOLUTION_X, RESOLUTION_Y));
-
 		// Init Cell Matrix
 		m_CellMatrix.InitMatrix(Vector2{RESOLUTION_X, RESOLUTION_Y});
 	}
@@ -92,6 +86,8 @@ namespace Automata
 	{
 		if(MouseButtons[GLFW_MOUSE_BUTTON_LEFT])
 			m_CellMatrix.AddElement<Sand>(MousePos);
+		if(MouseButtons[GLFW_MOUSE_BUTTON_RIGHT])
+			m_CellMatrix.AddElement<Water>(MousePos);
 	}
 	void Application::Run()
 	{
@@ -104,7 +100,7 @@ namespace Automata
 			ProcessInput();
 		
 			m_CellMatrix.Update(deltaTime);
-			m_CellMatrix.DrawElements(m_Renderer);
+			m_CellMatrix.DrawElements();
 
 			glfwSwapBuffers(m_Window);
 			glfwPollEvents();
@@ -113,8 +109,6 @@ namespace Automata
 
 	Application::~Application() 
 	{
-		delete m_Renderer;
-		delete automataShader;
 	}
 	void Application::ShutDown()
 	{
@@ -130,7 +124,7 @@ namespace Automata
 		totalTime += deltaTime;
 		if(totalTime >= 0.25f)
 		{
-			std::string fpsDescriptor = "FPS: " + std::to_string(fps) + " at" + std::to_string(m_CellMatrix.m_nElements());
+			std::string fpsDescriptor = "FPS: " + std::to_string(fps) + " at " + std::to_string(m_CellMatrix.m_nElements()) + " particles.";
 			glfwSetWindowTitle(m_Window, fpsDescriptor.c_str());
 			if (fps < 40.0f)
 				std::cout << "Performance Drop: " << fps << std::endl;

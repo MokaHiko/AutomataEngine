@@ -4,11 +4,11 @@
 #pragma once
 
 #include "Core.h"
-#include "Renderer/SpriteRenderer.h"
 #include "CellMatrix.h"
 
 // Available ELelmentsa
 #include "Elements/Solids/Sand.h"
+#include "Elements/Liquids/Water.h"
 
 namespace Automata
 {
@@ -29,7 +29,6 @@ namespace Automata
 
     private:
         CellMatrix m_CellMatrix;
-	    SpriteRenderer* m_Renderer;
 
     private:
         GLFWwindow* m_Window;

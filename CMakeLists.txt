@@ -11,11 +11,12 @@ add_executable(${PROJECT_NAME}
     ./src/Automata/Core/CellMatrix.cpp
     ./src/Automata/Core/Elements/Element.cpp
     ./src/Automata/Core/Elements/Solids/Sand.cpp
+    ./src/Automata/Core/Elements/Liquids/Water.cpp
     ./src/Automata/Renderer/Shader.cpp
     ./src/Automata/Renderer/Camera.cpp
     ./src/Automata/Renderer/Mesh.cpp
     ./src/Automata/Renderer/Model.cpp
-    ./src/Automata/Renderer/SpriteRenderer.cpp
+    ./src/Automata/Renderer/AutomataRenderer.cpp
     )
 add_subdirectory(./dependencies/glad)
 add_subdirectory(./dependencies/glm)
