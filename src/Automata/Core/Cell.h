@@ -5,14 +5,18 @@
 #include "Core.h"
 namespace Automata
 {
+    class Element; // Forward Declare Element
+
     struct Cell
     {
     public:
-        bool m_isEmpty = true;
         Vector2 m_Position;
+        Element* m_Element;
 
-        Cell(Vector2 position)
-            :m_Position(position) {}
+        Cell(Vector2 position, bool isEmpty = true)
+            :m_Position(position), m_Element(nullptr){}
+            
+        inline bool IsEmpty() { return m_Element == nullptr;}
     };
 }
 #endif

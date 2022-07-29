@@ -1,7 +1,15 @@
 #include "Application.h"
 
+// Available ELelmentsa
+#include "Elements/Solids/Sand.h"
+#include "Elements/Liquids/Water.h"
+#include "Elements/Gases/Smoke.h"
+
 namespace Automata
 {
+	Application* Application::s_Instance = nullptr;
+
+	// time
 	float Application::t;
 	float Application::lastTime;
 	float Application::deltaTime;
@@ -13,7 +21,7 @@ namespace Automata
 	Vector2 Application::MousePos;
 	bool Application::MouseButtons[7];
 
-	// GLFW callbacks
+	// Temporary Event Handler
     void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     {
         glViewport(0, 0, width, height);
@@ -40,9 +48,108 @@ namespace Automata
 			}
 		}
 	}
+	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
+	{
+		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+			glfwSetWindowShouldClose(window, true);
+		if (key >= 0 && key < 1024)
+		{
+			if (action == GLFW_PRESS)
+				Application::Keys[key] = true;
+			else if (action == GLFW_RELEASE)
+				Application::Keys[key] = false;
+		}
+	}
+	
+	Application::Application() 
+	{
+		s_Instance = this;
+		CreateWindow();
+		InitSystems();
+	}
+	
+	void Application::PushLayer(Layer* layer)
+	{
+		m_LayerStack.PushLayer(layer);
+		layer->OnAttatch();
+	}
+	
+	void Application::PopLayer(Layer* layer)
+	{
+		m_LayerStack.PopLayer(layer);
+		layer->OnDetatch();
+	}
+	void Application::ProcessInput()
+	{
+		// --- Input Events ---
+		// Mouse Inputs
+		if(MouseButtons[GLFW_MOUSE_BUTTON_LEFT])
+			m_CellMatrix.AddElement<Sand>(MousePos);
+		else if(MouseButtons[GLFW_MOUSE_BUTTON_RIGHT])
+			m_CellMatrix.AddElement<Water>(MousePos);
+		else if(MouseButtons[GLFW_MOUSE_BUTTON_3])
+			m_CellMatrix.AddElement<Smoke>(MousePos);
 
-	Application::Application() {}
-	void Application::Init()
+		if (Keys[GLFW_KEY_LEFT_SHIFT])
+		{
+		 if(MouseButtons[GLFW_MOUSE_BUTTON_LEFT])
+		 	m_CellMatrix.AddElementSquare<Sand>(MousePos, 3);
+		 else if(MouseButtons[GLFW_MOUSE_BUTTON_RIGHT])
+		 	m_CellMatrix.AddElementSquare<Water>(MousePos, 3);
+		 else if(MouseButtons[GLFW_MOUSE_BUTTON_3])
+		 	m_CellMatrix.AddElementSquare<Smoke>(MousePos, 3);
+		}
+
+		if(Keys[GLFW_KEY_LEFT_CONTROL])
+		{
+		 if(MouseButtons[GLFW_MOUSE_BUTTON_LEFT])
+		 	m_CellMatrix.RemoveElementSquare(MousePos, 3);
+		}
+			
+		// KeyBoard Inputs
+		if(Keys[GLFW_KEY_SPACE] && m_state == APPLICATION_STATE::RUNNING)
+			m_state = APPLICATION_STATE::PAUSED;
+		else if(Keys[GLFW_KEY_SPACE] && m_state == APPLICATION_STATE::PAUSED)
+			m_state = APPLICATION_STATE::RUNNING;
+	}
+	void Application::Run()
+	{
+		while(m_Running)
+		{
+			glClearColor(0.1, 0.1, 0.1, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
+
+			ProcessTime();
+			ProcessInput();
+
+			for(Layer* layer : m_LayerStack)
+				layer->OnUpdate();
+		
+			if(m_state == APPLICATION_STATE::RUNNING)
+				m_CellMatrix.Update(deltaTime);
+
+			m_CellMatrix.DrawElements();
+
+			m_ImGuiLayer->Begin();
+			for(Layer* layer : m_LayerStack)
+				layer->OnImguiRender();
+			m_ImGuiLayer->End();
+
+			glfwPollEvents();
+			glfwSwapBuffers(m_Window);
+		}
+		m_state = APPLICATION_STATE::STOPPED;
+	}
+
+	Application::~Application() { }
+	
+	void Application::ShutDown()
+	{
+		std::cout << "AUTOMATA ENGINE SHUT DOWN..." << std::endl; 
+		glfwTerminate();
+	}
+	
+	void Application::CreateWindow()
 	{
 		glfwInit();
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -73,47 +180,25 @@ namespace Automata
 		glfwSetWindowCloseCallback(m_Window, close_callback);
 		glfwSetCursorPosCallback(m_Window, mouse_callback);
 		glfwSetMouseButtonCallback(m_Window, mouse_button_callback);
-		
-		// init systems
+		glfwSetKeyCallback(m_Window, key_callback);
+	}
+	
+	void Application::InitSystems()
+	{
+		// time
 		t = glfwGetTime();
 		lastTime = t;
 		deltaTime = 0;
 
-		// Init Cell Matrix
+		//  ImGui Ui
+		m_ImGuiLayer = new ImGuiLayer("Engine UI");
+		PushLayer(m_ImGuiLayer);
+
+		// cell matrix
 		m_CellMatrix.InitMatrix(Vector2{RESOLUTION_X, RESOLUTION_Y});
-	}
-	void Application::ProcessInput()
-	{
-		if(MouseButtons[GLFW_MOUSE_BUTTON_LEFT])
-			m_CellMatrix.AddElement<Sand>(MousePos);
-		if(MouseButtons[GLFW_MOUSE_BUTTON_RIGHT])
-			m_CellMatrix.AddElement<Water>(MousePos);
-	}
-	void Application::Run()
-	{
-		while(m_Running)
-		{
-			glClearColor(0.1, 0.1, 0.1, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
-
-			ProcessTime();
-			ProcessInput();
-		
-			m_CellMatrix.Update(deltaTime);
-			m_CellMatrix.DrawElements();
-
-			glfwSwapBuffers(m_Window);
-			glfwPollEvents();
-		}
+		m_state = APPLICATION_STATE::RUNNING;
 	}
 
-	Application::~Application() 
-	{
-	}
-	void Application::ShutDown()
-	{
-		glfwTerminate();
-	}
 	void Application::ProcessTime()
 	{
 		t = glfwGetTime();
@@ -122,14 +207,14 @@ namespace Automata
 		fps = 1.0f / deltaTime;
 
 		totalTime += deltaTime;
-		if(totalTime >= 0.25f)
-		{
-			std::string fpsDescriptor = "FPS: " + std::to_string(fps) + " at " + std::to_string(m_CellMatrix.m_nElements()) + " particles.";
-			glfwSetWindowTitle(m_Window, fpsDescriptor.c_str());
-			if (fps < 40.0f)
-				std::cout << "Performance Drop: " << fps << std::endl;
+		// if(totalTime >= 0.25f)
+		// {
+		// 	std::string fpsDescriptor = "FrameTime: " + std::to_string(deltaTime * 1000) + "ms" + " , FPS: " + std::to_string(fps) + "fps at (" + std::to_string(m_CellMatrix.m_nElements()) + ") particles.";
+		// 	glfwSetWindowTitle(m_Window, fpsDescriptor.c_str());
+		// 	if (fps < 40.0f)
+		// 		std::cout << "Performance Drop: " << fps << std::endl;
 
-			totalTime = 0;
-		}
+		// 	totalTime = 0;
+		// }
 	}
 }

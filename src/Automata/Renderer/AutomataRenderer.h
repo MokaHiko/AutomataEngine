@@ -16,6 +16,7 @@ namespace Automata
 
         void DrawSprites();
 	    void AddInstance(const Vector2& coordinates, const Vector3& color);
+	    void RemoveInstance(unsigned int index);
 	    void UpdateInstance(unsigned int instanceID, const Vector2& coordinates, const Vector3& color);
     private:
         unsigned int m_currentInstance;

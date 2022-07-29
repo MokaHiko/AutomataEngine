@@ -7,11 +7,16 @@ add_executable(${PROJECT_NAME}
     ./src/Automata/Automata.h
     ./src/Automata/Core/Core.h
     ./src/Automata/Core/Application.cpp
+    ./src/Automata/Core/Layer.cpp
+    ./src/Automata/Core/LayerStack.cpp
+    ./src/Automata/Core/ImGui/ImGuiBuild.cpp
+    ./src/Automata/Core/ImGui/ImGuiLayer.cpp
     ./src/Automata/Core/Cell.h
     ./src/Automata/Core/CellMatrix.cpp
     ./src/Automata/Core/Elements/Element.cpp
     ./src/Automata/Core/Elements/Solids/Sand.cpp
     ./src/Automata/Core/Elements/Liquids/Water.cpp
+    ./src/Automata/Core/Elements/Gases/Smoke.cpp
     ./src/Automata/Renderer/Shader.cpp
     ./src/Automata/Renderer/Camera.cpp
     ./src/Automata/Renderer/Mesh.cpp
@@ -20,6 +25,7 @@ add_executable(${PROJECT_NAME}
     )
 add_subdirectory(./dependencies/glad)
 add_subdirectory(./dependencies/glm)
+add_subdirectory(./dependencies/imgui)
 
 target_include_directories(${PROJECT_NAME} 
     PRIVATE ./dependencies
@@ -27,6 +33,7 @@ target_include_directories(${PROJECT_NAME}
     PRIVATE ./dependencies/glad/include
     PRIVATE ./dependencies/assimp/include
     PRIVATE ./dependencies/glm
+    PRIVATE ./dependencies/imgui
     PRIVATE ./src/Automata
     PRIVATE ./src/Automata/Core
     PUBLIC  ./src/Automata/Core/Elements
@@ -43,8 +50,9 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE glad
     PRIVATE glm
     PRIVATE glfw3
-    PRIVATE opengl32
+    PRIVATE imgui
     PRIVATE assimp-vc142-mtd
+    PRIVATE opengl32
     )
 # move dlls
 add_custom_command(

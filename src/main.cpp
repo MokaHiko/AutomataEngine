@@ -1,9 +1,18 @@
 #include <Automata.h>
+
+class Sandbox : public Automata::Application {
+public:
+	Sandbox()
+	{
+	}
+	~Sandbox() {}
+};
+
 int main()
 {
-	Automata::Core.Init();
-	Automata::Core.Run();
-	Automata::Core.ShutDown();
+	Automata::Application* app = new Sandbox();
+	app->Run();
+	app->ShutDown();
 
-	return 0;
+	delete app;
 }

@@ -11,7 +11,7 @@ namespace Automata
     class Sand : public Element
     {
     public:
-	    Sand(std::vector<std::vector<Cell>>& cells, Vector2 position = Vector2(0.0f));
+	    Sand(unsigned int elementID,std::vector<std::vector<Cell>>& cells, Vector2 position = Vector2(0.0f));
         ~Sand();
 
     	void Step() override;

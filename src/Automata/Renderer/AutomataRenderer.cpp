@@ -24,7 +24,6 @@ namespace Automata
 		// Add Position
 		glBindBuffer(GL_ARRAY_BUFFER, positionsBuffer);
 		glBufferSubData(GL_ARRAY_BUFFER, sizeof(Vector2) * m_currentInstance, sizeof(Vector2),  &coordinates);
-
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), (void*)0);
 
@@ -33,8 +32,33 @@ namespace Automata
 		glBufferSubData(GL_ARRAY_BUFFER, sizeof(Vector3) * m_currentInstance++, sizeof(Vector3), &color);
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), (void*)0);
-;
+
 		m_instanceCount++;
+	}
+	
+	void AutomataRenderer::RemoveInstance(unsigned int index)
+	{
+		glBindVertexArray(VAO);
+
+		// Copy Data From Last Position to index of deletion
+		glBindBuffer(GL_ARRAY_BUFFER, positionsBuffer);
+		glCopyBufferSubData(GL_ARRAY_BUFFER, GL_ARRAY_BUFFER, 
+		(m_instanceCount - 1) * sizeof(Vector2),  // where to get data
+		index * sizeof(Vector2), // where we will place the data
+		sizeof(Vector2)); // size of data we are replacing
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), (void*)0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, colorsBuffer);
+		glCopyBufferSubData(GL_ARRAY_BUFFER, GL_ARRAY_BUFFER, 
+		(m_instanceCount - 1) * sizeof(Vector3),  // where to get data
+		index * sizeof(Vector3), // where we will place the data
+		sizeof(Vector3)); // size of data we are replacing
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), (void*)0);
+
+		m_currentInstance--;
+		m_instanceCount--;
 	}
 
 	void AutomataRenderer::UpdateInstance(unsigned int instanceID, const Vector2& coordinates, const Vector3& color)
@@ -42,15 +66,15 @@ namespace Automata
 		glBindVertexArray(VAO);
 
 		// update position
-		glEnableVertexAttribArray(1);
 		glBindBuffer(GL_ARRAY_BUFFER, positionsBuffer);
 		glBufferSubData(GL_ARRAY_BUFFER, sizeof(Vector2) * instanceID, sizeof(Vector2),  &coordinates);
+		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), (void*)0);
 
 		// update colors
-		glEnableVertexAttribArray(2);
 		glBindBuffer(GL_ARRAY_BUFFER, colorsBuffer);
 		glBufferSubData(GL_ARRAY_BUFFER, sizeof(Vector3) * instanceID, sizeof(Vector3), &color);
+		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), (void*)0);
 	}
 

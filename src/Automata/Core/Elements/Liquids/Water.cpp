@@ -2,10 +2,9 @@
 
 namespace Automata
 {
-	Water::Water(std::vector<std::vector<Cell>>& cells, Vector2 position)
-		: Element(cells, position, Vector2(1.0f), Vector3(0.184, 0.854, 0.776))
+	Water::Water(unsigned int elementID, std::vector<std::vector<Cell>>& cells, Vector2 position)
+		: Element(elementID, cells, position, Vector2(1.0f), Vector3(0.184, 0.854, 0.776))
 	{
-
 	}
 
 	Water::~Water()
@@ -14,23 +13,24 @@ namespace Automata
 
 	void Water::Step()
 	{
-		m_isUpdated = false;
+		if(m_dormant) return; 
+		Vector2 prevCoordinate = m_Position;
 
-		Vector2 desiredCoordinate = Vector2(m_Position.x, m_Position.y);
+		m_isUpdated = false;
+		Vector2 desiredCoordinate = m_Position;
 
 		// element rules
 		desiredCoordinate = Gravity(desiredCoordinate);
-		desiredCoordinate =  Roll(desiredCoordinate);
-		desiredCoordinate = Slide(desiredCoordinate);
+		desiredCoordinate = Roll(desiredCoordinate);
+		desiredCoordinate =	Slide(desiredCoordinate);
 
+		// change cell pointer of effected cells
+		Cell& currentCell = m_MatrixCells[prevCoordinate.x][prevCoordinate.y];
 		Cell& nextCell = m_MatrixCells[desiredCoordinate.x][desiredCoordinate.y];
-		if(!nextCell.m_isEmpty)
-			return;
+		currentCell.m_Element = nullptr;
+		nextCell.m_Element = this;
 
-		Cell& currentCell = m_MatrixCells[m_Position.x][m_Position.y];
-		currentCell.m_isEmpty = true;
-		nextCell.m_isEmpty = false;
-
+		// reposition for rendering
 		m_Position = desiredCoordinate;
 	}
 
@@ -40,27 +40,28 @@ namespace Automata
 		if(m_isUpdated) return desiredCoordinate;
 
 		Vector2 Left(m_Position.x - 1, m_Position.y);
-		if(Left.x > 0 && Left.y < m_MatrixCells[0].size())
+		if(Left.x > 0)
 		{
 			Cell& LeftCell = m_MatrixCells[Left.x][Left.y];
-			if (LeftCell.m_isEmpty)
+			if (LeftCell.IsEmpty())
 			{
-				m_isUpdated = true;
+				EndUpdate(true);
 				return Left;
 			}
 		}
 
-		Vector2 Right(m_Position.x + 1, m_Position.y + 1);
-		if(Right.x > 0 && Right.y < m_MatrixCells[0].size())
+		Vector2 Right(m_Position.x + 1, m_Position.y);
+		if(Right.x < m_MatrixCells.size())
 		{
 			Cell& RightCell = m_MatrixCells[Right.x][Right.y];
-			if (RightCell.m_isEmpty)
+			if (RightCell.IsEmpty())
 			{
-				m_isUpdated = true;
+				EndUpdate(true);
 				return Right;
 			}
 		}
 
+		EndUpdate(false);
 		return desiredCoordinate;
 	}
 }

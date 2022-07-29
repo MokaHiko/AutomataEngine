@@ -12,7 +12,7 @@ namespace Automata {
 		std::ifstream fShaderFile;
 		std::ifstream gShaderFile;
 		
-		// ifstream exceptios
+		// ifstream exceptions
 		vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 		fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 		if(geometryPath)

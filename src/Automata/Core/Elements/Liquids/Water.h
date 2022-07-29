@@ -4,13 +4,12 @@
 #pragma once
 
 #include "Element.h"
-#include "Core.h"
 namespace Automata
 {
     class Water: public Element
     {
     public:
-        Water(std::vector<std::vector<Cell>>& cells, Vector2 position = Vector2(0.0f));
+        Water(unsigned int elementID, std::vector<std::vector<Cell>>& cells, Vector2 position = Vector2(0.0f));
         ~Water();
 
     	void Step() override;
